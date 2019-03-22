@@ -1,0 +1,73 @@
+version: '2'
+networks:
+  lumen:
+    driver: bridge
+services:
+ nginx:
+  build:
+   context: ./docker
+   dockerfile: nginx.docker
+  container_name: web
+  ports:
+   - "8080:80"
+  volumes:
+   - ./docker/data/www:/var/www
+  links:
+   - app
+  networks:
+   - lumen
+  container_name: nginx
+  hostname: nginx
+ app:
+  build:
+   context: ./docker
+   dockerfile: php.docker
+  volumes:
+   - ./docker/data/www:/var/www
+  depends_on:
+   - mysql
+   - redis
+  environment:
+   - "APP_ENV=${APP_ENV}"
+   - "APP_DEBUG=${APP_DEBUG}"
+   - "APP_KEY=${APP_KEY}"
+   - "DB_CONNECTION=${DB_CONNECTION}"
+   - "DB_HOST=${DB_HOST}"
+   - "DB_PORT=${DB_PORT}"
+   - "DB_DATABASE=${DB_DATABASE}"
+   - "DB_USERNAME=${DB_USERNAME}"
+   - "DB_PASSWORD=${DB_PASSWORD}"
+   - "CACHE_DRIVER=${CACHE_DRIVER}"
+   - "QUEUE_DRIVER=${QUEUE_DRIVER}"
+   - "REDIS_HOST=${REDIS_HOST}"
+   - "REDIS_PASSWORD=${REDIS_PASSWORD}"
+   - "REDIS_PORT=${REDIS_PORT}"
+  networks:
+   - lumen 
+  container_name: app
+  hostname: app
+ mysql:
+  image: mysql:5.7
+  environment:
+   MYSQL_DATABASE: ${DB_DATABASE}
+   MYSQL_USER: ${DB_USERNAME}
+   MYSQL_PASSWORD: ${DB_PASSWORD}
+   MYSQL_ALLOW_EMPTY_PASSWORD: 1
+  volumes:
+   - ./docker/data/mysql:/var/lib/mysql
+  ports:
+   - "3306:3306"
+  networks:
+   - lumen
+  container_name: mysqldb
+  hostname: mysqldb
+ redis:
+  image: redis:3.0
+  ports:
+   - "6379:6379"
+  volumes:
+   - ./docker/data/redis:/data
+  networks:
+   - lumen
+  container_name: redis
+  hostname: redis

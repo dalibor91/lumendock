@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+#make log dir
+mkdir -p docker/data/www/logs
+
+# docker compose 
+docker-compose up -d
+
+# install lumena app
+bin/exec app composer create-project --prefer-dist laravel/lumen app
