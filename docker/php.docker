@@ -1,8 +1,8 @@
-FROM php:7.1.9-fpm
+FROM php:8.0-fpm
 
 # Install any custom system requirements here
-RUN apt-get update && apt-get install -y libmcrypt-dev zip unzip git mysql-client \
-    && docker-php-ext-install mcrypt pdo_mysql
+RUN apt-get update && apt-get install -y libmcrypt-dev libzip-dev zip unzip git mcrypt \
+    && docker-php-ext-install pdo_mysql zip
 
 RUN php -r " file_put_contents('c.php', file_get_contents('https://getcomposer.org/installer')); if (hash_file('SHA384', 'c.php') !== trim(file_get_contents('https://composer.github.io/installer.sig'))) { echo 'Corupted'.PHP_EOL; unlink('c.php'); exit(1); } " && \
     php c.php --install-dir=/usr/local/bin --filename=composer  && \
